@@ -1,0 +1,182 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Microsoft/azure-pipelines-task-lib/master/tasks.schema.json",
+    "id": "359e64f9-cce5-4a1d-a9b0-cc7a903d07f6",
+    "name": "confirm-dot-net-core",
+    "friendlyName": "Confirm DotNet Core",
+    "description": "Checks server(s) for the correct DotNet Core version and environment",
+    "helpMarkDown": "",
+    "category": "Utility",
+    "visibility": [
+        "Build",
+        "Release"
+    ],
+    "author": "Jeremy Travis",
+    "version": {
+        "Major": 0,
+        "Minor": 1,
+        "Patch": 0
+    },
+    "minimumAgentVersion": "2.111.0",
+    "instanceNameFormat": "Checking DotNet Core",
+    "groups": [
+        {
+            "name": "ServerAdministrationSection",
+            "displayName": "Server Administration",
+            "isExpanded": true,
+            "visibleRule": "ServerOption = Remote"
+        },
+        {
+            "name": "AdvancedSection",
+            "displayName": "Advanced",
+            "isExpanded": false
+        }
+    ],
+    "inputs": [
+        {
+            "name": "DesireVersion",
+            "type": "string",
+            "label": "ASPNET Core Runtime Version",
+            "defaultValue": "",
+            "required": true,
+            "helpMarkDown": "Enter the desire version of .NET Core to compare against.<br />Use 'x' in last position when testing against major and minor numbers.<br />EX:<br />2.1.14<br />2.1.x"
+        },
+        {
+            "name": "DesireEnvironment",
+            "type": "pickList",
+            "label": "ASPNET Core Environment",
+            "defaultValue": "",
+            "options": {
+                "Development": "Development",
+                "Staging": "Staging",
+                "Production": "Production"
+            },
+            "helpMarkDown": "Check server for desired environment. This query the System variables %ASPNETCORE_ENVIRONMENT%, when set."
+        },
+        {
+            "name": "ServerOption",
+            "type": "radio",
+            "label": "Applied to server",
+            "required": false,
+            "defaultValue": "Local",
+            "options": {
+                "Local": "Local",
+                "Remote": "Remote"
+            },
+            "helpMarkDown": "Local or Remote server to perform action on.<br />Local: will execute on local machine that is running the agent."
+        },
+        {
+            "name": "MachinesList",
+            "type": "multiLine",
+            "label": "Machines",
+            "defaultValue": "",
+            "required": true,
+            "helpMarkDown": "Provide a comma separated list of the machine(s) IP addresses or FQDNs along with ports. The port is defaulted based on the selected protocol or can be provided separately. <br>For example, dbserver.fabrikam.com, dbserver_int.fabrikam.com:5986, 192.168.12.34:40004. <br>If you are using HTTPS, name/IP of machine should match the CN in the certificate.",
+            "groupName": "ServerAdministrationSection"
+        },
+        {
+            "name": "WinRMAuthentication",
+            "type": "radio",
+            "label": "Authentication",
+            "required": true,
+            "defaultValue": "Standard",
+            "options": {
+                "Standard": "Standard",
+                "Thycotic": "Thycotic"
+            },
+            "groupName": "ServerAdministrationSection",
+            "helpMarkDown": "Select the authentication to use for the WinRM connection with the machine(s). The default is Standard (Username/Password)."
+        },
+        {
+            "name": "AdminUserName",
+            "type": "string",
+            "label": "Admin Login",
+            "defaultValue": "",
+            "visibleRule": "WinRMAuthentication = Standard",
+            "required": true,
+            "helpMarkDown": "Provide the administrator's login of the target machines.",
+            "groupName": "ServerAdministrationSection"
+        },
+        {
+            "name": "AdminPassword",
+            "type": "string",
+            "label": "Password",
+            "defaultValue": "",
+            "visibleRule": "WinRMAuthentication = Standard",
+            "required": true,
+            "helpMarkDown": "Provide the administrator's password of the target machines. <br>The best practice is to create a variable in the Build or Release pipeline, and mark it as 'Secret' to secure it, and then use it here, like '$(adminPassword)'.",
+            "groupName": "ServerAdministrationSection"
+        },
+        {
+            "name": "ThycoticServer",
+            "type": "string",
+            "label": "Server URL",
+            "defaultValue": "",
+            "visibleRule": "WinRMAuthentication = Thycotic",
+            "required": true,
+            "helpMarkDown": "Provide the URL address to Thycotic Secret Server. <br />EX: https://thycotic.local/SecretServer/",
+            "groupName": "ServerAdministrationSection"
+        },
+        {
+            "name": "ThycoticRule",
+            "type": "string",
+            "label": "Rule Name",
+            "defaultValue": "",
+            "visibleRule": "WinRMAuthentication = Thycotic",
+            "required": true,
+            "helpMarkDown": "Provide the Thycotic Rule name to use.",
+            "groupName": "ServerAdministrationSection"
+        },
+        {
+            "name": "ThycoticKey",
+            "type": "string",
+            "label": "Key",
+            "defaultValue": "",
+            "visibleRule": "WinRMAuthentication = Thycotic",
+            "required": true,
+            "helpMarkDown": "Provide the Thycotic Key to use with rule.",
+            "groupName": "ServerAdministrationSection"
+        },
+        {
+            "name": "ThycoticSecretId",
+            "type": "string",
+            "label": "Secret Id",
+            "defaultValue": "",
+            "visibleRule": "WinRMAuthentication = Thycotic",
+            "required": true,
+            "helpMarkDown": "Provide the Thycotic Id to retrieve from secret server.<br/>EX: 135",
+            "groupName": "ServerAdministrationSection"
+        },
+        {
+            "name": "WinRMProtocol",
+            "type": "radio",
+            "label": "Protocol",
+            "required": true,
+            "defaultValue": "Https",
+            "options": {
+                "Http": "HTTP",
+                "Https": "HTTPS"
+            },
+            "helpMarkDown": "Select the network protocol to use for the WinRM connection with the machine(s). The default is HTTPS.",
+            "groupName": "ServerAdministrationSection"
+        },
+        {
+            "name": "TestCertificate",
+            "type": "boolean",
+            "label": "Skip CA check",
+            "defaultValue": "true",
+            "visibleRule": "WinRMProtocol = Https",
+            "required": false,
+            "helpMarkDown": "Select the option to skip validating the authenticity of the machine's certificate from a trusted certification authority. The parameter is required for the WinRM HTTPS protocol.",
+            "groupName": "ServerAdministrationSection"
+        }
+    ],
+    "execution": {
+        "PowerShell3": {
+            "target": "Use-ConfirmDotNetCore.ps1",
+            "platforms": [
+                "windows"
+            ],
+            "workingDirectory": "$(currentDirectory)"
+        }
+    }
+}

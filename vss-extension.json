@@ -1,0 +1,109 @@
+{
+    "manifestVersion": 1,
+    "extensionId": "build-release-tools",
+    "name": "Travis - Build and Release Tools",
+    "version": "0.0.1",
+    "publisher": "na",
+    "description": "A fine collection of handy extensions for Azure DevOps (formaly VSTS)",
+    "public": true,
+    "icons": {
+        "default": "images/extension-default.png",
+        "large": "images/extension-large.png"
+    },
+    "categories": [
+        "Build and release"
+    ],
+    "tags": [],
+    "links": {
+        "Learn": {
+            "uri": "https://github.com/jtravis76/azure-devops-extensions-tasks/"
+        }
+    },
+    "branding": {
+        "color": "#f6f7fb",
+        "theme": "light"
+    },
+    "content": {
+        "details": {
+            "path": "README.md"
+        }
+    },
+    "files": [
+        {
+            "path": "Tasks/IISLoopbackHostnames"
+        },
+        {
+            "path": "Tasks/WindowsMachineFileCopy"
+        },
+        {
+            "path": "Tasks/EncryptDecryptConfig"
+        },
+        {
+            "path": "Tasks/ConfirmDotNet"
+        },
+        {
+            "path": "Tasks/IISCorsModule"
+        },
+        {
+            "path": "images",
+            "addressable": true
+        }
+    ],
+    "targets": [
+        {
+            "id": "Microsoft.VisualStudio.Services"
+        }
+    ],
+    "contributions": [
+        {
+            "id": "iisloopbackhostnames-task",
+            "type": "ms.vss-distributed-task.task",
+            "targets": [
+                "ms.vss-distributed-task.tasks"
+            ],
+            "properties": {
+                "name": "Tasks/IISLoopbackHostnames"
+            }
+        },
+        {
+            "id": "windowsmachinefilecopy-task",
+            "type": "ms.vss-distributed-task.task",
+            "targets": [
+                "ms.vss-distributed-task.tasks"
+            ],
+            "properties": {
+                "name": "Tasks/WindowsMachineFileCopy"
+            }
+        },
+        {
+            "id": "encryptdecryptconfig-task",
+            "type": "ms.vss-distributed-task.task",
+            "targets": [
+                "ms.vss-distributed-task.tasks"
+            ],
+            "properties": {
+                "name": "Tasks/EncryptDecryptConfig"
+            }
+        },
+        {
+            "id": "confirmdotnet-task",
+            "type": "ms.vss-distributed-task.task",
+            "targets": [
+                "ms.vss-distributed-task.tasks"
+            ],
+            "properties": {
+                "name": "Tasks/ConfirmDotNet"
+            }
+        },
+        {
+            "id": "iiscorsmodule-task",
+            "type": "ms.vss-distributed-task.task",
+            "targets": [
+                "ms.vss-distributed-task.tasks"
+            ],
+            "properties": {
+                "name": "Tasks/IISCorsModule"
+            }
+        }
+    ]
+}

@@ -1,0 +1,252 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Microsoft/azure-pipelines-task-lib/master/tasks.schema.json",
+    "id": "43d1a5aa-da10-476a-b44f-982075d7ae81",
+    "name": "encrypt-decrypt-app-web-config",
+    "friendlyName": "Encrypt / Decrypt Web Configuration",
+    "description": "Encrypt or decrypts sections of app/web configuration files",
+    "helpMarkDown": "",
+    "category": "Utility",
+    "visibility": [
+        "Build",
+        "Release"
+    ],
+    "author": "Jeremy Travis",
+    "version": {
+        "Major": 0,
+        "Minor": 1,
+        "Patch": 0
+    },
+    "minimumAgentVersion": "2.111.0",
+    "instanceNameFormat": "$(Action): $(Site) $(App) $(Path)",
+    "groups": [
+        {
+            "name": "ServerAdministrationSection",
+            "displayName": "Server Administration",
+            "isExpanded": true,
+            "visibleRule": "ServerOption = Remote"
+        },
+        {
+            "name": "IIS-SiteApp",
+            "displayName": "IIS Site/App",
+            "isExpanded": true
+        },
+        {
+            "name": "WebAppPhysicalDirectory",
+            "displayName": "Web App Physical Directory",
+            "isExpanded": false
+        },
+        {
+            "name": "ConfigSection",
+            "displayName": "Configuration Section",
+            "isExpanded": true
+        },
+        {
+            "name": "AdvancedSection",
+            "displayName": "Advanced",
+            "isExpanded": false
+        }
+    ],
+    "inputs": [
+        {
+            "name": "Action",
+            "type": "pickList",
+            "label": "Action",
+            "required": true,
+            "defaultValue": "Encrypt",
+            "options": {
+                "Encrypt": "Encrypt",
+                "Decrypt": "Decrypt"
+            },
+            "helpMarkDown": "Action to performed; Encrypt or Decrypt"
+        },
+        {
+            "name": "ServerOption",
+            "type": "radio",
+            "label": "Applied to server",
+            "required": true,
+            "defaultValue": "Local",
+            "options": {
+                "Local": "Local",
+                "Remote": "Remote"
+            },
+            "helpMarkDown": "Local or Remote server to perform action on.<br />Local: will execute on local machine that is running the agent."
+        },
+        {
+            "name": "machinesList",
+            "type": "multiLine",
+            "label": "Machines",
+            "defaultValue": "",
+            "required": true,
+            "helpMarkDown": "Provide a comma separated list of the machine(s) IP addresses or FQDNs along with ports. The port is defaulted based on the selected protocol or can be provided separately. <br>For example, dbserver.fabrikam.com, dbserver_int.fabrikam.com:5986, 192.168.12.34:40004. <br>If you are using HTTPS, name/IP of machine should match the CN in the certificate.",
+            "groupName": "ServerAdministrationSection"
+        },
+        {
+            "name": "WinRMAuthentication",
+            "type": "radio",
+            "label": "Authentication",
+            "required": true,
+            "defaultValue": "Standard",
+            "options": {
+                "Standard": "Standard",
+                "Thycotic": "Thycotic"
+            },
+            "groupName": "ServerAdministrationSection",
+            "helpMarkDown": "Select the authentication to use for the WinRM connection with the machine(s). The default is Standard (Username/Password)."
+        },
+        {
+            "name": "AdminUserName",
+            "type": "string",
+            "label": "Admin Login",
+            "defaultValue": "",
+            "visibleRule": "WinRMAuthentication = Standard",
+            "required": true,
+            "helpMarkDown": "Provide the administrator's login of the target machines.",
+            "groupName": "ServerAdministrationSection"
+        },
+        {
+            "name": "AdminPassword",
+            "type": "string",
+            "label": "Password",
+            "defaultValue": "",
+            "visibleRule": "WinRMAuthentication = Standard",
+            "required": true,
+            "helpMarkDown": "Provide the administrator's password of the target machines. <br>The best practice is to create a variable in the Build or Release pipeline, and mark it as 'Secret' to secure it, and then use it here, like '$(adminPassword)'.",
+            "groupName": "ServerAdministrationSection"
+        },
+        {
+            "name": "ThycoticServer",
+            "type": "string",
+            "label": "Server URL",
+            "defaultValue": "",
+            "visibleRule": "WinRMAuthentication = Thycotic",
+            "required": true,
+            "helpMarkDown": "Provide the URL address to Thycotic Secret Server. <br />EX: https://thycotic.local/SecretServer/",
+            "groupName": "ServerAdministrationSection"
+        },
+        {
+            "name": "ThycoticRule",
+            "type": "string",
+            "label": "Rule Name",
+            "defaultValue": "",
+            "visibleRule": "WinRMAuthentication = Thycotic",
+            "required": true,
+            "helpMarkDown": "Provide the Thycotic Rule name to use.",
+            "groupName": "ServerAdministrationSection"
+        },
+        {
+            "name": "ThycoticKey",
+            "type": "string",
+            "label": "Key",
+            "defaultValue": "",
+            "visibleRule": "WinRMAuthentication = Thycotic",
+            "required": true,
+            "helpMarkDown": "Provide the Thycotic Key to use with rule.",
+            "groupName": "ServerAdministrationSection"
+        },
+        {
+            "name": "ThycoticSecretId",
+            "type": "string",
+            "label": "Secret Id",
+            "defaultValue": "",
+            "visibleRule": "WinRMAuthentication = Thycotic",
+            "required": true,
+            "helpMarkDown": "Provide the Thycotic Id to retrieve from secret server.<br/>EX: 135",
+            "groupName": "ServerAdministrationSection"
+        },
+        {
+            "name": "WinRMProtocol",
+            "type": "radio",
+            "label": "Protocol",
+            "required": true,
+            "defaultValue": "Https",
+            "options": {
+                "Http": "HTTP",
+                "Https": "HTTPS"
+            },
+            "helpMarkDown": "Select the network protocol to use for the WinRM connection with the machine(s). The default is HTTPS.",
+            "groupName": "ServerAdministrationSection"
+        },
+        {
+            "name": "TestCertificate",
+            "type": "boolean",
+            "label": "Skip CA check",
+            "defaultValue": "true",
+            "visibleRule": "WinRMProtocol = Https",
+            "required": false,
+            "helpMarkDown": "Select the option to skip validating the authenticity of the machine's certificate from a trusted certification authority. The parameter is required for the WinRM HTTPS protocol.",
+            "groupName": "ServerAdministrationSection"
+        },
+        {
+            "name": "App",
+            "type": "string",
+            "label": "Application Name",
+            "defaultValue": "/",
+            "required": false,
+            "groupName": "IIS-SiteApp",
+            "helpMarkDown": "Encrypt/Decrypt at this virtual path. Virtual path must begin with a forward slash. If it is '/', then it refers to the root of the site."
+        },
+        {
+            "name": "Site",
+            "type": "string",
+            "label": "Site Name",
+            "defaultValue": "Default Web Site",
+            "required": false,
+            "groupName": "IIS-SiteApp",
+            "helpMarkDown": "The site of the virtual path specified in Application Name.<br />Default 'Default Web Site'"
+        },
+        {
+            "name": "ConfigPath",
+            "type": "string",
+            "label": "Physical Directory",
+            "defaultValue": "",
+            "required": false,
+            "groupName": "WebAppPhysicalDirectory",
+            "helpMarkDown": "Encrypt/Decrypt web.config at this physical path.<br />!! IIS Site/App setting will be ignored."
+        },
+        {
+            "name": "AppSettings",
+            "type": "boolean",
+            "label": "App Settings",
+            "defaultValue": "",
+            "required": false,
+            "groupName": "ConfigSection",
+            "helpMarkDown": "The appSettings of the config file."
+        },
+        {
+            "name": "ConnectionStrings",
+            "type": "boolean",
+            "label": "Connection Strings",
+            "defaultValue": "",
+            "required": false,
+            "groupName": "ConfigSection",
+            "helpMarkDown": "The connectionSettings of the config file."
+        },
+        {
+            "name": "AdditionalSection",
+            "type": "string",
+            "label": "Additional Section",
+            "defaultValue": "",
+            "required": false,
+            "groupName": "ConfigSection",
+            "helpMarkDown": "Custom section of the config file.<br />EX: <custom.tag><br />  <add key='123' value='abc' /><br /></custom.tag>"
+        },
+        {
+            "name": "AspNetRegIISLocation",
+            "type": "string",
+            "label": "Location",
+            "defaultValue": "C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319",
+            "required": false,
+            "groupName": "AdvancedSection",
+            "helpMarkDown": "Directory location to aspnet_regiis.exe"
+        }
+    ],
+    "execution": {
+        "PowerShell3": {
+            "target": "EncryptDecrypt.ps1",
+            "platforms": [
+                "windows"
+            ],
+            "workingDirectory": "$(currentDirectory)"
+        }
+    }
+}
