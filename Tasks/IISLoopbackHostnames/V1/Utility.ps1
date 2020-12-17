@@ -141,15 +141,37 @@ function Get-Thycotic {
             Write-Verbose $v[0]
             $v = tss init -u $thycoticServer -r $thycoticRule -k $thycoticKey
             Write-Verbose $v[0]
-            $user = tss secret -s $thycoticSecretId -f username
+            $secret = tss secret -s $thycoticSecretId
 
-            if ($user[0] -eq "400 - Bad Request")
+            if ($secret[0] -eq "400 - Bad Request")
             {
                 throw "Access Denied to secret id: $thycoticSecretId"
             }
-            $domain = tss secret -s $thycoticSecretId -f domain
-            $adminUserName = ($user + "@" + $domain)
-            $adminPassword = tss secret -s $thycoticSecretId -f password   
+
+            $domain = ""
+            $username = ""
+
+            $thycotic = $secret | ConvertFrom-Json
+            foreach ($i in $thycotic.items)
+            {
+                if ($i.fieldName -eq "Domain")
+                {
+                    $domain = $i.itemValue
+                }
+                if ($i.fieldName -eq "Username")
+                {
+                    $username = $i.itemValue
+                }
+                if ($i.fieldName -eq "Password")
+                {
+                    $adminPassword = $i.itemValue
+                }
+            }
+            if ($username -eq "" -or $domain -eq "")
+            {
+                throw "Invalid username and/or domain."
+            }
+            $adminUserName = ($username + "@" + $domain)    
         }
         catch [System.Exception] {
             Write-Host ("##vso[task.LogIssue type=error;]Error within Thycotic Secret Server. Please check your settings.")

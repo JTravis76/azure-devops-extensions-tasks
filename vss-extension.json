@@ -3,7 +3,7 @@
     "extensionId": "build-release-tools",
     "name": "Travis - Build and Release Tools",
     "version": "0.0.1",
-    "publisher": "na",
+    "publisher": "jtravis76",
     "description": "A fine collection of handy extensions for Azure DevOps (formaly VSTS)",
     "public": true,
     "icons": {
